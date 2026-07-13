@@ -1,0 +1,50 @@
+{
+  "name": "BatchCopyLandingToProcessed",
+  "properties": {
+    "description": "Daily batch pipeline: copies transaction export files from the landing-zone container to the processed-zone container.",
+    "activities": [
+      {
+        "name": "CopyLandingToProcessed",
+        "type": "Copy",
+        "typeProperties": {
+          "source": {
+            "type": "DelimitedTextSource",
+            "storeSettings": {
+              "type": "AzureBlobStorageReadSettings",
+              "recursive": true,
+              "wildcardFileName": "*.csv"
+            },
+            "formatSettings": {
+              "type": "DelimitedTextReadSettings"
+            }
+          },
+          "sink": {
+            "type": "DelimitedTextSink",
+            "storeSettings": {
+              "type": "AzureBlobStorageWriteSettings"
+            },
+            "formatSettings": {
+              "type": "DelimitedTextWriteSettings",
+              "quoteAllText": false,
+              "fileExtension": ".csv"
+            }
+          },
+          "enableStaging": false
+        },
+        "inputs": [
+          {
+            "referenceName": "LandingZoneDataset",
+            "type": "DatasetReference"
+          }
+        ],
+        "outputs": [
+          {
+            "referenceName": "ProcessedZoneDataset",
+            "type": "DatasetReference"
+          }
+        ]
+      }
+    ]
+  },
+  "_notes": "Deployed via the Data Factory Studio UI rather than the CLI/PowerShell - ADF pipeline authoring is most reliably done through Studio's guided wizards, which also generate this same underlying JSON."
+}
