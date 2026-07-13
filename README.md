@@ -38,6 +38,7 @@ becomes worth it - not a toy substitute.
 | [`streaming-pipeline/simulate-event-stream.ps1`](streaming-pipeline/simulate-event-stream.ps1) | Simulates a live event stream by pushing messages to a Storage Queue |
 | [`streaming-pipeline/ProcessStreamEvent/`](streaming-pipeline/ProcessStreamEvent/) | Azure Function (Queue trigger) - processes each event as it arrives |
 | [`docs/architecture.md`](docs/architecture.md) | Design rationale, cost model, and the batch-vs-streaming trade-off analysis |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Visual diagram of both pipelines and the Function-to-local-consumer substitution |
 | [`docs/setup-guide.md`](docs/setup-guide.md) | Full reproduction steps with screenshot evidence points |
 | [`docs/screenshots/`](docs/screenshots/) | Evidence of both pipelines actually deployed and running |
 

@@ -5,10 +5,9 @@
 
 .DESCRIPTION
     Models the arrival pattern of real-time events hitting a queue as they
-    happen, rather than arriving in a single batch. The queue-triggered Azure
-    Function in streaming-pipeline/ProcessStreamEvent processes each message
-    within seconds of it landing - the defining characteristic that separates this
-    from the batch pipeline.
+    happen. Uses the QueueClient object's SendMessage method (Azure.Storage.Queues
+    SDK v12), confirmed as the correct property/type for current Az.Storage
+    module versions.
 
 .PARAMETER StorageAccountName
     Name of the storage account hosting the queue.
@@ -21,16 +20,6 @@
 
 .PARAMETER EventCount
     Number of simulated events to send. Default: 10.
-
-.NOTES
-    Uses the underlying CloudQueue object's AddMessageAsync method rather than a
-    high-level Az cmdlet, because Az.Storage does not currently expose a
-    dedicated "Send-AzStorageQueueMessage" cmdlet. If this fails with a type-
-    related error, the Az.Storage module version in use may have migrated to a
-    newer underlying SDK with a different type name - run
-    (Get-AzStorageQueue -Name $QueueName -Context $ctx).CloudQueue.GetType().FullName
-    to find the correct type name for your installed module version and adjust
-    accordingly.
 #>
 
 param(
@@ -73,7 +62,8 @@ for ($i = 1; $i -le $EventCount; $i++) {
 
     $messageBody = $event | ConvertTo-Json -Compress
 
-    $queue.CloudQueue.AddMessageAsync((New-Object Microsoft.Azure.Storage.Queue.CloudQueueMessage($messageBody))) | Out-Null
+    $queueClient = $queue.QueueClient
+    $queueClient.SendMessage($messageBody) | Out-Null
 
     Write-Host "  Sent: $messageBody"
 
@@ -81,4 +71,3 @@ for ($i = 1; $i -le $EventCount; $i++) {
 }
 
 Write-Host "`n$EventCount event(s) sent to queue '$QueueName'." -ForegroundColor Green
-Write-Host "Check the Azure Function's execution logs to confirm each event was processed within seconds of arrival." -ForegroundColor Cyan
