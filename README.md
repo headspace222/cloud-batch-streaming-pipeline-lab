@@ -19,10 +19,10 @@ This is worth stating directly rather than leaving implicit: these are the
 constraint.
 
 - **Event Hubs**: no always-free tier - Basic SKU has a genuine minimum monthly
-  charge from the moment a namespace exists, regardless of usage
+  charge from the moment a namespace exists, regardless of usage.
 - **Stream Analytics**: billed per streaming unit-hour with no free allowance
 - **Databricks**: offers a 14-day trial, not an always-free tier - unsuitable for
-  a portfolio piece meant to be reproducible indefinitely
+  a portfolio piece meant to be reproducible indefinitely.
 
 Storage Queues + Azure Functions (Consumption plan) genuinely are always-free at
 this lab's scale, and this combination is a real architecture pattern used by
@@ -33,15 +33,15 @@ becomes worth it - not a toy substitute.
 
 | Component | Purpose |
 |---|---|
-| [`batch-pipeline/generate-batch-data.ps1`](batch-pipeline/generate-batch-data.ps1) | Generates sample batch data files for the landing zone |
-| [`batch-pipeline/adf-pipeline-definition.json`](batch-pipeline/adf-pipeline-definition.json) | Azure Data Factory pipeline definition - scheduled Copy Activity, landing zone to processed zone |
-| [`streaming-pipeline/simulate-event-stream.ps1`](streaming-pipeline/simulate-event-stream.ps1) | Simulates a live event stream by pushing messages to a Storage Queue |
-| [`streaming-pipeline/Process-EventStream-Local.ps1`](streaming-pipeline/Process-EventStream-Local.ps1) | Event consumer - processes each event within seconds of arrival, run locally after Azure Functions proved undeployable on this subscription (see docs/architecture.md) |
-| [`streaming-pipeline/ProcessStreamEvent/`](streaming-pipeline/ProcessStreamEvent/) | The originally designed Azure Function (Queue trigger) - retained as directly deployable code, not usable on this specific Free Trial subscription |
-| [`docs/architecture.md`](docs/architecture.md) | Design rationale, cost model, and the batch-vs-streaming trade-off analysis |
-| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Visual diagram of both pipelines and the Function-to-local-consumer substitution |
-| [`docs/setup-guide.md`](docs/setup-guide.md) | Full reproduction steps with screenshot evidence points |
-| [`docs/screenshots/`](docs/screenshots/) | Evidence of both pipelines actually deployed and running |
+| [`batch-pipeline/generate-batch-data.ps1`](batch-pipeline/generate-batch-data.ps1) | Generates sample batch data files for the landing zone. |
+| [`batch-pipeline/adf-pipeline-definition.json`](batch-pipeline/adf-pipeline-definition.json) | Azure Data Factory pipeline definition - scheduled Copy Activity, landing zone to processed zone. |
+| [`streaming-pipeline/simulate-event-stream.ps1`](streaming-pipeline/simulate-event-stream.ps1) | Simulates a live event stream by pushing messages to a Storage Queue .|
+| [`streaming-pipeline/Process-EventStream-Local.ps1`](streaming-pipeline/Process-EventStream-Local.ps1) | Event consumer - processes each event within seconds of arrival, run locally after Azure Functions proved undeployable on this subscription (see docs/architecture.md). |
+| [`streaming-pipeline/ProcessStreamEvent/`](streaming-pipeline/ProcessStreamEvent/) | The originally designed Azure Function (Queue trigger) - retained as directly deployable code, not usable on this specific Free Trial subscription. |
+| [`docs/architecture.md`](docs/architecture.md) | Design rationale, cost model, and the batch-vs-streaming trade-off analysis. |
+| [`docs/architecture-diagram.md`](docs/architecture-diagram.md) | Visual diagram of both pipelines and the Function-to-local-consumer substitution. |
+| [`docs/setup-guide.md`](docs/setup-guide.md) | Full reproduction steps with screenshot evidence points. |
+| [`docs/screenshots/`](docs/screenshots/) | Evidence of both pipelines actually deployed and running. |
 
 ## Batch vs. Streaming: The Core Distinction Demonstrated
 
@@ -50,21 +50,21 @@ becomes worth it - not a toy substitute.
 | **Trigger** | Schedule (e.g. daily) | Event arrival (each message) |
 | **Latency** | Minutes to hours acceptable | Seconds |
 | **Volume pattern** | Large batches, periodic | Continuous, individually small |
-| **Typical real use** | Nightly reconciliation, end-of-day reporting, bulk data movement | Transaction alerts, live dashboards, fraud-pattern triggers |
-| **Failure handling** | Re-run the whole pipeline | Per-message retry via queue visibility timeout |
+| **Typical real use** | Nightly reconciliation, end-of-day reporting, bulk data movement. | Transaction alerts, live dashboards, fraud-pattern triggers. |
+| **Failure handling** | Re-run the whole pipeline | Per-message retry via queue visibility timeout. |
 
 ## Cost
 
 - **Azure Data Factory**: Azure's always-free tier includes a monthly grant of
   low-frequency pipeline activity runs, which this lab's schedule comfortably sits
   within - see `docs/architecture.md` for the exact allowance and what happens
-  beyond it
+  beyond it.
 - **Storage Queues**: negligible cost at any volume this lab generates - a few
   pence per 100,000 operations, and this lab's simulated stream is a handful of
-  messages
+  messages.
 - **Azure Functions (Consumption plan)**: always-free grant of 1,000,000
   executions and 400,000 GB-seconds of compute per month - this lab's event volume
-  is nowhere close to that threshold
+  is nowhere close to that threshold.
 
 ## Screenshots
 
@@ -72,30 +72,42 @@ Evidence of both pipelines, captured against a live Azure subscription during
 this build. Files live in `docs/screenshots/`.
 
 **1. Landing Zone Populated**
+
 ![Landing zone populated](docs/screenshots/01-landing-zone-populated.png)
+
 Sample batch data uploaded and ready for the Data Factory pipeline to pick up.
 
 **2. Data Factory Pipeline Canvas**
+
 ![ADF pipeline canvas](docs/screenshots/02-adf-pipeline-canvas.png)
+
 The Copy Data activity configured with landing-zone as source and
 processed-zone as sink.
 
 **3. Pipeline Run Succeeded**
+
 ![ADF pipeline run succeeded](docs/screenshots/03-adf-pipeline-run-succeeded.png)
+
 A debug run completing successfully - the batch copy working end to end.
 
 **4. Schedule Trigger Configured**
+
 ![ADF schedule trigger](docs/screenshots/04-adf-trigger-schedule.png)
+
 The pipeline attached to a daily recurrence, turning a one-off run into a
 repeatable scheduled job.
 
 **5. Batch Output Verified**
+
 ![Processed zone output](docs/screenshots/05-processed-zone-output.png)
+
 Files landed correctly in processed-zone, confirming the batch pipeline moved
 data end to end.
 
 **6. Event Processing Latency**
+
 ![Event processing latency](docs/screenshots/06-event-processing-latency.png)
+
 The local event consumer processing simulated transaction events, with
 per-event latency calculated and high-value transactions correctly flagged -
 the core evidence for the streaming half of this project.
@@ -107,17 +119,17 @@ Full steps: [`docs/setup-guide.md`](docs/setup-guide.md).
 ## Skills Demonstrated
 
 - **Batch ETL orchestration**: Azure Data Factory pipeline design, Copy Activity
-  configuration, scheduled triggers
+  configuration, scheduled triggers.
 - **Event-driven architecture**: Storage Queue-based messaging, Azure Functions
-  Queue triggers, near-real-time processing without a dedicated streaming platform
+  Queue triggers, near-real-time processing without a dedicated streaming platform.
 - **Architecture trade-off judgement**: choosing the right tool for data volume
   and latency requirements, rather than defaulting to the most feature-rich
-  (and most expensive) option available
+  (and most expensive) option available.
 - **Cost-aware platform selection**: recognising which Azure services have
   genuine always-free tiers versus time-boxed trials, and designing around that
-  distinction deliberately
+  distinction deliberately.
 - **PowerShell automation**: scripted data generation and event simulation for
-  reproducible testing of both pipelines
+  reproducible testing of both pipelines.
 
 ## Conclusion
 
